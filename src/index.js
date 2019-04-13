@@ -19,7 +19,7 @@ const toString = JSON.stringify;
 const calculateSegmentOffset = (totalSegments = 0, initialOffset = 25) =>
   100 - totalSegments + initialOffset;
 
-const adjustSegmentPosition = (value, adjustment = 4) => value / adjustment;
+const adjustSegmentPosition = (value, adjustment = 1) => value / adjustment;
 
 const DoughnutSegment = ({
   value,
@@ -28,7 +28,7 @@ const DoughnutSegment = ({
   strokeDashoffset
 }) => (
   <circle
-    class="donut-segment"
+    className="donut-segment"
     {...baseCircleProps}
     fill="transparent"
     stroke={stroke}
@@ -67,10 +67,10 @@ const Doughnut = ({
   const baseCircleProps = { cx: center, cy: center, r: radius, strokeWidth };
 
   return (
-    <svg width={width} height={height} viewBox={viewBox} class="donut">
-      <circle class="donut-hole" {...baseCircleProps} fill="#fff" />
+    <svg width={width} height={height} viewBox={viewBox} className="donut">
+      <circle className="donut-hole" {...baseCircleProps} fill="#fff" />
       <circle
-        class="donut-ring"
+        className="donut-ring"
         {...baseCircleProps}
         fill="transparent"
         stroke="#d2d3d4"
@@ -79,6 +79,7 @@ const Doughnut = ({
         values.reduce(
           ({ totalLength, segments }, v, i) => {
             const segmentLength = adjustSegmentPosition(v.value || v);
+
             return {
               totalLength: totalLength + segmentLength,
               segments: segments.concat(
@@ -87,7 +88,7 @@ const Doughnut = ({
                   baseCircleProps={baseCircleProps}
                   value={segmentLength}
                   stroke={v.color || randomColor()}
-                  strokeDashoffset={calculateSegmentOffset(totalLength, -12.5)}
+                  strokeDashoffset={calculateSegmentOffset(totalLength)}
                 />
               )
             };
@@ -102,7 +103,7 @@ const Doughnut = ({
 const segmentValueProptype = oneOfType([
   number.isRequired,
   exact({ value: number.isRequired, color: string.isRequired })
-]).isRequired;
+]);
 
 Doughnut.propTypes = {
   value: segmentValueProptype,

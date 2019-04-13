@@ -9,7 +9,7 @@ function getRandomInt(max) {
 }
 
 const randomColor = () =>
-  `rgb(${getRandomInt(255)}, ${getRandomInt(255)}, ${getRandomInt(255)})`;
+  `rgba(${getRandomInt(255)}, ${getRandomInt(255)}, ${getRandomInt(255)}, 0.8)`;
 
 // A shortcut for displaying values in an error message.
 const toString = JSON.stringify;
@@ -17,7 +17,7 @@ const toString = JSON.stringify;
 // initialOffset will rotate the segments from 3 O'clock - where segments normally start - to 12 O'clock at the top of the circle.
 // initialOffset is 25 because the circumference is 100
 const calculateSegmentOffset = (totalSegments = 0, initialOffset = 25) =>
-  100 - totalSegments + initialOffset;
+  -initialOffset + totalSegments;
 
 const adjustSegmentPosition = (value, adjustment = 1) => value / adjustment;
 
@@ -68,17 +68,16 @@ const Doughnut = ({
 
   return (
     <svg width={width} height={height} viewBox={viewBox} className="donut">
-      <circle className="donut-hole" {...baseCircleProps} fill="#fff" />
-      <circle
-        className="donut-ring"
-        {...baseCircleProps}
-        fill="transparent"
-        stroke="#d2d3d4"
+      <DoughnutSegment
+        baseCircleProps={{ ...baseCircleProps, strokeWidth: 0.2 }}
+        value={adjustSegmentPosition(100, 2)}
+        stroke="#03bbe8"
+        strokeDashoffset={calculateSegmentOffset(0, -25)}
       />
       {
         values.reduce(
           ({ totalLength, segments }, v, i) => {
-            const segmentLength = adjustSegmentPosition(v.value || v);
+            const segmentLength = adjustSegmentPosition(v.value || v, 2);
 
             return {
               totalLength: totalLength + segmentLength,
@@ -88,7 +87,10 @@ const Doughnut = ({
                   baseCircleProps={baseCircleProps}
                   value={segmentLength}
                   stroke={v.color || randomColor()}
-                  strokeDashoffset={calculateSegmentOffset(totalLength)}
+                  strokeDashoffset={calculateSegmentOffset(
+                    totalLength + segmentLength,
+                    -75
+                  )}
                 />
               )
             };
@@ -102,7 +104,7 @@ const Doughnut = ({
 
 const segmentValueProptype = oneOfType([
   number.isRequired,
-  exact({ value: number.isRequired, color: string.isRequired })
+  exact({ value: number, color: string })
 ]);
 
 Doughnut.propTypes = {
@@ -113,7 +115,7 @@ Doughnut.propTypes = {
 function App() {
   return (
     <div className="App">
-      <Doughnut values={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} />
+      <Doughnut value={{ value: getRandomInt(100), color: "#03bbe8" }} />
     </div>
   );
 }
